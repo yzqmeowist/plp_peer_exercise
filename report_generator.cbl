@@ -65,6 +65,7 @@
            02 Filler               PIC X.
            02 AccountLoan          PIC X(15).
 
+      * use X(80) as the actions and amounts keep a variable length
        FD TransactionsFile
            RECORD CONTAINS 80 CHARACTERS.
            01 TransactionLine      PIC X(80).
@@ -103,6 +104,7 @@
            05 WS-OLD-MONEY     PIC 9(15)V99.
            05 WS-OLD-LOAN      PIC 9(15)V99.
 
+      * use Z to suppress leading zeros in display
        01 WS-DISPLAY.
            05 WS-DISPLAY-OLD-MONEY      PIC Z(4)9.99.
            05 WS-DISPLAY-NEW-MONEY      PIC Z(4)9.99.
