@@ -132,6 +132,7 @@
       *    end of the file, or a STOP RUN statement.
            STOP RUN.
 
+      * read accounts from accounts.dat to data table
        Read-Accounts-File.
            OPEN INPUT AccountsFile
            MOVE 1 TO TABLE-IDX
@@ -153,6 +154,7 @@
            END-PERFORM
            CLOSE AccountsFile.
 
+      * process transactions from transactions.dat
        Process-Transactions.
            OPEN INPUT TransactionsFile
            MOVE 'F' TO EOF-TRANSACTIONS-FLAG
@@ -163,6 +165,7 @@
                  NOT AT END
                     INITIALIZE WS-TRANSACTION-DETAILS
                     INITIALIZE WS-CALCULATION-FIELDS
+      * extract transaction details
                     UNSTRING TransactionLine
                         DELIMITED BY ALL SPACES
                         INTO WS-TT-ID
@@ -171,6 +174,7 @@
                     END-UNSTRING
                     COMPUTE WS-AMOUNT-NUM =
                         FUNCTION NUMVAL(WS-TT-AMOUNT)
+      * find account in data table
                     SET TABLE-IDX TO 1
                     SEARCH DATA-Entry
                       AT END
@@ -178,6 +182,7 @@
                       WHEN DT-ID(TABLE-IDX) = WS-TT-ID
                           MOVE DT-MONEY(TABLE-IDX) TO WS-OLD-MONEY
                           MOVE DT-LOAN(TABLE-IDX) TO WS-OLD-LOAN
+      * process transaction according to its type                    
                           EVALUATE WS-TT-TYPE
                             WHEN "ADD_AMOUNT"
                               ADD WS-AMOUNT-NUM 
@@ -195,15 +200,16 @@
                                   FROM DT-LOAN(TABLE-IDX)
                               SUBTRACT WS-AMOUNT-NUM 
                                   FROM DT-MONEY(TABLE-IDX)
-                              WHEN OTHER
-                                  DISPLAY "Unknown transaction type" 
-                              END-EVALUATE
+                            WHEN OTHER
+                              DISPLAY "Unknown transaction type" 
+                          END-EVALUATE
                           PERFORM Write-Report
                     END-SEARCH
                END-READ
            END-PERFORM
            CLOSE TransactionsFile.
 
+      * output with the required format
        Write-Report.
            MOVE WS-OLD-MONEY TO WS-DISPLAY-OLD-MONEY
            MOVE DT-MONEY(TABLE-IDX) TO WS-DISPLAY-NEW-MONEY
